@@ -8,6 +8,7 @@ import {
 } from '@remix-run/react';
 import appStyles from './styles/app.css';
 import favicon from '../public/favicon.svg';
+import CountryBar from './components/CountryBar';
 
 export const links = () => {
   return [
@@ -26,13 +27,16 @@ export const links = () => {
 
 export async function loader({context}) {
   const layout = await context.storefront.query(LAYOUT_QUERY);
-  return {layout};
+  const country = await context.storefront.query(COUNTRY_QUERY)
+  return {layout, country };
 }
 
 export default function App() {
   const data = useLoaderData();
 
   const {name} = data.layout.shop;
+  const { localization } = data.country
+  console.log(data.country)
 
   return (
     <html lang="en">
@@ -43,8 +47,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <h1>Hello, {name}</h1>
-        <p>This is a custom storefront powered by Hydrogen</p>
+        
+        <CountryBar />
+
         <Outlet />
         <ScrollRestoration />
         <Scripts />
@@ -61,3 +66,15 @@ const LAYOUT_QUERY = `#graphql
     }
   }
 `;
+
+const COUNTRY_QUERY = `
+  #graphql
+  query country {
+    localization {
+      availableCountries {
+        isoCode
+        name
+      }
+    }
+  }
+`
